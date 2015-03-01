@@ -25,7 +25,7 @@ def _is_type(a, t):
 		raise TypeError
 	return type(a) == t
 
-def drawArray(screen, array, color=(0,0,0), horizontal=False):
+def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlcolors=[]):
 	'''This function draws on a Surface the content of a list of integers as rectangles.'''
 	#Check arguments type
 	if not _is_type(array, list) and not _is_type(array, tuple):
@@ -40,6 +40,10 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False):
 
 	if not _is_type(horizontal, bool):
 		raise TypeError, "required bool"
+	if not _is_type(highlight, list) or not _is_type(hlcolors, list):
+		raise TypeError, "required a list"
+	if len(highlight) != len(hlcolors):
+		raise ValueError, "'highlight' and 'hlcolors' must have the same number of elements"
 
 	_check_color(color)
 
@@ -75,7 +79,10 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False):
 		else:
 			rect = pygame.Rect(0, rectx, recth, rectw)
 			rect.left = 0
-		pygame.draw.rect(screen, color, rect)
+		if i in highlight:
+			pygame.draw.rect(screen, hlcolors[highlight.index(i)], rect)
+		else:
+			pygame.draw.rect(screen, color, rect)
 
 def drawNode(screen, obj, color=(0,0,0)):
 	x = obj.x
@@ -96,3 +103,9 @@ def drawNode(screen, obj, color=(0,0,0)):
 		txtH = tempTxtSize
 	txt = pygame.transform.smoothscale(txt, (txtW, txtH))
 	screen.blit(txt, (x-txtW/2, y-txtH/2))
+
+def drawLine(screen, vertical, pos, color=(0,0,0)):
+	if vertical:
+		pygame.gfxdraw.vline(screen, pos, 0, screen.get_height(), color)
+	else:
+		pygame.gfxdraw.vline(screen, pos, 0, screen.get_width(), color)
