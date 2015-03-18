@@ -10,11 +10,13 @@ pygame.init()
 def simpleDraw(l, ll, s=[]):
 	global a
 	global screen
+	global time
 	drawing.drawArray(screen, a, color=blu, highlight=l, hlcolors=ll, swap=s)
 	pygame.display.flip()
+	pygame.time.delay(time)
 
 screen = pygame.display.set_mode((1000, 500))
-pygame.display.set_caption("Selection sort")
+pygame.display.set_caption("Insertion sort")
 screen.fill((255,255,255))
 pygame.display.flip()
 
@@ -29,32 +31,29 @@ rosso = (255,0,0)
 verde = (0,255,0)
 blu = (0,0,255)
 giallo = (255,255,0)
+grigio = pygame.Color("#dddddd")
 
 time = 300
 
-for i in range(len(a)-1):
-	minVal = maxN
-	minInd = 0
-	for j in range(i, len(a)):
-		if pygame.event.Event(pygame.QUIT) in pygame.event.get():
-			pygame.quit()
-			sys.exit()
-
-		if a[j] < minVal:
-			minVal = a[j]
-			minInd = j
-		screen.fill(pygame.Color("#dddddd"))
-		simpleDraw([minInd, j, i], [rosso, verde, giallo])
-		pygame.time.delay(time)
-	screen.fill(pygame.Color("#dddddd"))
-	simpleDraw([minInd, j, i], [rosso, verde, giallo], s=[i, minInd])
-	pygame.time.delay(time)
-	a[i], a[minInd] = a[minInd], a[i]
+for i in range(len(a)):
+	screen.fill(grigio)
+	simpleDraw([i], [verde])
+	if pygame.event.Event(pygame.QUIT) in pygame.event.get():
+		pygame.quit()
+		sys.exit()
+	while i > 0 and a[i] < a[i-1]:
+		screen.fill(grigio)
+		simpleDraw([i, i-1], [verde, giallo], s=[i,i-1])
+		a[i], a[i-1] = a[i-1], a[i]
+		i -= 1
 
 
-screen.fill((255,255,255))
+screen.fill(grigio)
 simpleDraw([], [])
 pygame.display.flip()
+
+#Clear event queue
+pygame.event.get()
 
 while 1:
 	if pygame.event.Event(pygame.QUIT) in pygame.event.get():

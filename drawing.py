@@ -19,6 +19,40 @@ class Node:
 		self.x = x
 		self.y = y
 		self.size = size
+	def draw(self, screen, color):
+		'''Draws a Node object on the Surface, as a circle with text inside'''
+		if not isinstance(screen, pygame.Surface):
+			raise TypeError, "you must give a Surface object"
+
+		#Node coordinates
+		x = self.x
+		y = self.y
+		#Text inside the node
+		text = self.name
+		#Node size
+		size = self.size
+		#Draw the anti-aliasing circle (double for line width)
+		pygame.gfxdraw.aacircle(screen, x, y, size/2, color)
+		pygame.gfxdraw.aacircle(screen, x, y, size/2-1, color)
+		#Render the text very big
+		txt = font.render(str(text), True, color)
+		#Get text size
+		txtW = txt.get_width()
+		txtH = txt.get_height()
+		#Size inside the circle
+		tempTxtSize = size*3/4
+		#Get the bigger dimension of the text and calculate new dimensions to fit inside the circle
+		#and with same rate
+		if txtW > txtH:
+			txtH = tempTxtSize*txtH/txtW
+			txtW = tempTxtSize
+		else:
+			txtW = tempTxtSize*txtW/txtH
+			txtH = tempTxtSize
+		#Scale the text to calculated size
+		txt = pygame.transform.smoothscale(txt, (txtW, txtH))
+		#Draw the text on the surface inside the circle
+		screen.blit(txt, (x-txtW/2, y-txtH/2))
 
 class Edge:
 	'''A class to represent an edge in a graph'''
@@ -31,6 +65,27 @@ class Edge:
 		self.nodeFrom = node1
 		self.nodeTo = node2
 		self.weight = weight
+
+	def draw(self, surf, color, directed=False, weighted=False):
+		#The slope of the line
+		tan = float(self.nodeTo.y-self.nodeFrom.y)/float(self.nodeTo.x-self.nodeFrom.x)
+
+		#Angle of the line with y=0
+		angle = math.atan(tan) + (math.pi if self.nodeTo.x < self.nodeFrom.x else 0)
+		
+		print "angle {1} tan {0} cos {2} sin {3}".format(tan, math.degrees(angle), math.cos(angle), math.sin(angle))
+
+		#Starting point
+		startx = int(self.nodeFrom.x+math.cos(angle)*float(self.nodeFrom.size/2))
+		starty = int(self.nodeFrom.y+math.sin(angle)*float(self.nodeFrom.size/2))
+
+		#Ending point
+		endx = int(self.nodeTo.x-math.cos(angle)*(self.nodeTo.size/2))
+		endy = int(self.nodeTo.y-math.sin(angle)*(self.nodeTo.size/2))
+
+		#Draw the line
+		pygame.draw.line(surf, color, (startx, starty), (endx, endy), 3)
+
 
 class Graph:
 	def __init__(self, edges, directed=False, weighted=False):
@@ -67,18 +122,32 @@ class Graph:
 
 		return adj
 
+	def draw(self, surf, color, highlight=[], hlcolors=[]):
+		if not isinstance(highlight, (list, tuple)) or not isinstance(hlcolors, (list, tuple)):
+			raise TypeError, "required a list or tuple"
+		elif len(highlight) != len(hlcolors):
+			raise ValueError, "highlight and hlcolors arguments must have the same dimension"
+		for i in range(len(highlight)):
+			highlight[i] = str(highlight[i])
+		for e in self.edges:
+			e.draw(surf, color)
+		for n in self.nodes:
+			if n.name in highlight:
+				n.draw(surf, hlcolors[highlight.index(n.name)])
+			else:
+				n.draw(surf, color)
+
 
 def _swap(surf, rect1, rect2, color1, color2, time, fps=25):
 	surfTemp = surf.copy()
 	rect1Temp = rect1.copy()
 	rect2Temp = rect2.copy()
 
-	totFrames = int(fps*time)
+	totFrames = int(fps*time)+1
 	offsetX = rect1.left-rect2.left
 	stepX = float(offsetX)/totFrames
-	offsetY = rect1.top-rect2.top
+	offsetY = rect1.bottom-rect2.bottom
 	stepY = float(offsetY)/totFrames
-	print offsetX, stepX, offsetY, stepY
 
 	clock = pygame.time.Clock()
 	for i in range(totFrames+1):
@@ -87,13 +156,12 @@ def _swap(surf, rect1, rect2, color1, color2, time, fps=25):
 		rect1 = rect1Temp.copy()
 		rect2 = rect2Temp.copy()
 		rect1.left -= int(stepX*i)
-		rect1.top -= int(stepY*i)
+		rect1.bottom -= int(stepY*i)
 		rect2.left += int(stepX*i)
-		rect2.top += int(stepY*i)
+		rect2.bottom += int(stepY*i)
 		pygame.draw.rect(surf, color1, rect1)
 		pygame.draw.rect(surf, color2, rect2)
 		pygame.display.flip()
-	print rect1, rect2
 
 
 def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlcolors=[], swap=[]):
@@ -139,6 +207,8 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 	#Space between two rectangles
 	spaceWidth = rectWidth/10
 
+	toSwap = []
+
 	for i in range(len(array)):
 		actualHeight = (maxHeight*array[i])/maxVal
 		rectx = rectWidth*i+(spaceWidth/2)
@@ -157,43 +227,10 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 			else:
 				pygame.draw.rect(screen, color, rect)
 		else:
-			swap[swap.index(i)] = rect
-	if(len(swap) == 2):
-		_swap(screen, swap[0], swap[1], color, color, 10)
+			toSwap.append(rect)
+	if(len(toSwap) == 2):
+		c1 = (hlcolors[highlight.index(swap[0])] if swap[0] in highlight else color)
+		c2 = (hlcolors[highlight.index(swap[1])] if swap[1] in highlight else color)
+		_swap(screen, toSwap[0], toSwap[1], c1, c2, 0.5)
 
-def drawNode(screen, obj, color=(0,0,0)):
-	'''Draws a Node object on the Surface, as a circle with text inside'''
-	if not isinstance(obj, Node):
-		raise TypeError, "you must give a Node object"
-	if not _is_color(color):
-		raise ValueError, "invalid color"
 
-	#Node coordinates
-	x = obj.x
-	y = obj.y
-	#Text inside the node
-	text = obj.name
-	#Node size
-	size = obj.size
-	#Draw the anti-aliasing circle (double for line width)
-	pygame.gfxdraw.aacircle(screen, x, y, size/2, color)
-	pygame.gfxdraw.aacircle(screen, x, y, size/2-1, color)
-	#Render the text very big
-	txt = font.render(str(text), True, color)
-	#Get text size
-	txtW = txt.get_width()
-	txtH = txt.get_height()
-	#Size inside the circle
-	tempTxtSize = size*3/4
-	#Get the bigger dimension of the text and calculate new dimensions to fit inside the circle
-	#and with same rate
-	if txtW > txtH:
-		txtH = tempTxtSize*txtH/txtW
-		txtW = tempTxtSize
-	else:
-		txtW = tempTxtSize*txtW/txtH
-		txtH = tempTxtSize
-	#Scale the text to calculated size
-	txt = pygame.transform.smoothscale(txt, (txtW, txtH))
-	#Draw the text on the surface inside the circle
-	screen.blit(txt, (x-txtW/2, y-txtH/2))
