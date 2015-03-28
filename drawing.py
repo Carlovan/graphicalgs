@@ -11,6 +11,11 @@ font = pygame.font.SysFont("arial", 50)
 class Node:
 	'''Class to represent a node in a graph'''
 	def __init__(self, name, x, y, size=30):
+		'''name:	the label of the node
+		   x:			x coordinate when drawing
+		   y:			y coordinate when drawing
+		   size:	diameter of the circle when drawing'''
+
 		if not isinstance(x, int) or not isinstance(y, int):
 			raise TypeError, "coordinates must be integers"
 		if not isinstance(size, int):
@@ -20,7 +25,7 @@ class Node:
 		self.y = y
 		self.size = size
 	def draw(self, screen, color):
-		'''Draws a Node object on the Surface, as a circle with text inside'''
+		'''Draws a Node object on the Surface, as a circle with its name inside'''
 		if not isinstance(screen, pygame.Surface):
 			raise TypeError, "you must give a Surface object"
 
@@ -57,6 +62,8 @@ class Node:
 class Edge:
 	'''A class to represent an edge in a graph'''
 	def __init__(self, node1, node2, weight=-1):
+		'''node1, node2:	the starting and arriving nodes (Node objects)
+			weight:					the weight of the edge (in case of weighted graph'''
 		if not isinstance(node1, Node) or not isinstance(node2, Node):
 			raise TypeError, "required Node"
 		if not isinstance(weight, int):
@@ -67,6 +74,7 @@ class Edge:
 		self.weight = weight
 
 	def draw(self, surf, color, directed=False, weighted=False):
+		'''Draws the Edge on the Surface with the specified color'''
 		#The slope of the line
 		tan = float(self.nodeTo.y-self.nodeFrom.y)/float(self.nodeTo.x-self.nodeFrom.x)
 
@@ -88,7 +96,9 @@ class Edge:
 
 
 class Graph:
+	'''Represent a graph, with nodes and edges'''
 	def __init__(self, edges, directed=False, weighted=False):
+		'''edges: a list of Edges'''
 		if not isinstance(edges, (list, tuple)):
 			raise TypeError, "required a list for the edges"
 		if not all(isinstance(x, Edge) for x in edges):
@@ -104,7 +114,7 @@ class Graph:
 		self.weighted = weighted
 
 	def genAdjList(self):
-		#Gen an empty list for every node
+		'''Generates an adjacent list as a dictionary indexed with the nodes' labels'''
 		adj = {}
 		for x in self.nodes:
 			adj[x.name] = []
@@ -123,6 +133,11 @@ class Graph:
 		return adj
 
 	def draw(self, surf, color, highlight=[], hlcolors=[]):
+		'''Draws every Node and Edge in the Graph.
+		   You can specify in the list highlight the nodes you want to highlight with a different color.
+		   You can specify colors in hlcolors.
+		   highlight[i] willbe drawed with color hlcolor[i]
+		   If len(highlight) > len(hlcolors) the overflow nodes will be drawed with the last color (hlcolors[-1]).'''
 		if not isinstance(highlight, (list, tuple)) or not isinstance(hlcolors, (list, tuple)):
 			raise TypeError, "required a list or tuple"
 		elif len(highlight) != len(hlcolors):
@@ -139,6 +154,7 @@ class Graph:
 
 
 def _swap(surf, rect1, rect2, color1, color2, time, fps=25):
+	'''This is an internal function to swap two rects'''
 	surfTemp = surf.copy()
 	rect1Temp = rect1.copy()
 	rect2Temp = rect2.copy()
@@ -164,10 +180,14 @@ def _swap(surf, rect1, rect2, color1, color2, time, fps=25):
 		pygame.display.flip()
 
 
-def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlcolors=[], swap=[]):
+def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlcolors=[], swap=[], swap_time=500):
 	'''This function draws on a Surface the content of a list of integers as rectangles.
-	highlight is a list that contains the indices of the elements you want to highlight.
-	hlcolors is a list that contains the color to highlighting'''
+	   You can specify in the list highlight the elements you want to highlight with a different color.
+	   You can specify colors in hlcolors.
+	   highlight[i] willbe drawed with color hlcolor[i]
+	   If len(highlight) > len(hlcolors) the overflow nodes will be drawed with the last color (hlcolors[-1]).
+	   horizontal is a bool to spacify if you want horizontal rectangle instead of vertical.
+	   swap is a list; it can contain 2 elements to swap. You can specify the swap time with the swap_time argument (in ms).'''
 	#Check arguments type
 	if not isinstance(array, (list,tuple)):
 		raise TypeError, "required a list or tuple"
@@ -184,8 +204,10 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 		raise TypeError, "required bool"
 	if not isinstance(highlight, list) or not isinstance(hlcolors, list):
 		raise TypeError, "required a list"
-	if len(highlight) != len(hlcolors):
-		raise ValueError, "'highlight' and 'hlcolors' must have the same number of elements"
+	#if len(highlight) != len(hlcolors):
+	#	raise ValueError, "'highlight' and 'hlcolors' must have the same number of elements"
+	if not isinstance(swap_time, int):
+		raise TypeError, "swaptime must be an integer (milliseconds)"
 
 	#Surface dimensions
 	if not horizontal:
@@ -223,7 +245,8 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 			rect.left = 0
 		if i not in swap:
 			if i in highlight:
-				pygame.draw.rect(screen, hlcolors[highlight.index(i)], rect)
+				temp_index = highlight.index(i) if highlight.index(i) < len(hlcolors) else len(hlcolors)-1
+				pygame.draw.rect(screen, hlcolors[temp_index], rect)
 			else:
 				pygame.draw.rect(screen, color, rect)
 		else:
@@ -231,6 +254,6 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 	if(len(toSwap) == 2):
 		c1 = (hlcolors[highlight.index(swap[0])] if swap[0] in highlight else color)
 		c2 = (hlcolors[highlight.index(swap[1])] if swap[1] in highlight else color)
-		_swap(screen, toSwap[0], toSwap[1], c1, c2, 0.5)
+		_swap(screen, toSwap[0], toSwap[1], c1, c2, swap_time/1000.0)
 
 

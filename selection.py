@@ -13,7 +13,10 @@ def simpleDraw(l, ll, s=[]):
 	drawing.drawArray(screen, a, color=blu, highlight=l, hlcolors=ll, swap=s)
 	pygame.display.flip()
 
-screen = pygame.display.set_mode((1000, 500))
+winW = 1000
+winH = 500
+
+screen = pygame.display.set_mode((winW, winH))
 pygame.display.set_caption("Selection sort")
 screen.fill((255,255,255))
 pygame.display.flip()
@@ -52,8 +55,10 @@ for i in range(len(a)-1):
 	a[i], a[minInd] = a[minInd], a[i]
 
 
-screen.fill((255,255,255))
-simpleDraw([], [])
+screen.fill(pygame.Color("#dddddd"))
+drawing.drawArray(screen, a, color=verde)
+smile = pygame.image.load("smile.png")
+screen.blit(smile, ((winW-smile.get_width())/2, (winH-smile.get_height())/2))
 pygame.display.flip()
 
 while 1:

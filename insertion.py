@@ -15,12 +15,15 @@ def simpleDraw(l, ll, s=[]):
 	pygame.display.flip()
 	pygame.time.delay(time)
 
-screen = pygame.display.set_mode((1000, 500))
+win_w = 1000
+win_h = 500
+
+screen = pygame.display.set_mode((win_w, win_h))
 pygame.display.set_caption("Insertion sort")
 screen.fill((255,255,255))
 pygame.display.flip()
 
-maxN = 10
+maxN = 30
 
 a = range(1,maxN)
 random.shuffle(a)
@@ -33,7 +36,7 @@ blu = (0,0,255)
 giallo = (255,255,0)
 grigio = pygame.Color("#dddddd")
 
-time = 300
+time = 10
 
 for i in range(len(a)):
 	screen.fill(grigio)
@@ -50,6 +53,8 @@ for i in range(len(a)):
 
 screen.fill(grigio)
 simpleDraw([], [])
+smile = pygame.image.load("smile.png")
+screen.blit(smile, ((win_w-smile.get_width())/2,(win_h-smile.get_height())/2))
 pygame.display.flip()
 
 #Clear event queue
