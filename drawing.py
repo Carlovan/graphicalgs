@@ -155,6 +155,18 @@ class Graph:
 
 def _swap(surf, rect1, rect2, color1, color2, time, fps=25):
 	'''This is an internal function to swap two rects'''
+
+	#If rect1 and rect2 are the same rect just draw it and wait
+	print rect1
+	print rect2
+	print ""
+	if rect1.left == rect2.left and rect1.top == rect2.top and rect1.width == rect2.width and rect1.height == rect2.height:
+		pygame.draw.rect(surf, color1, rect1)
+		pygame.display.flip()
+		pygame.time.sleep(time)
+		print "ok"
+		return
+
 	surfTemp = surf.copy()
 	rect1Temp = rect1.copy()
 	rect2Temp = rect2.copy()
@@ -208,6 +220,9 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 	#	raise ValueError, "'highlight' and 'hlcolors' must have the same number of elements"
 	if not isinstance(swap_time, int):
 		raise TypeError, "swaptime must be an integer (milliseconds)"
+
+	if len(swap) == 2 and (swap[0] == swap[1]):
+		swap = []
 
 	#Surface dimensions
 	if not horizontal:

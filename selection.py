@@ -24,7 +24,7 @@ pygame.display.flip()
 maxN = 10
 
 a = range(1,maxN)
-random.shuffle(a)
+#random.shuffle(a)
 
 bianco = (255,255,255)
 nero = (0,0,0)
