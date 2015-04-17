@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import drawing
+import graphicalgs
 import pygame
 import random
 import sys
@@ -10,7 +10,7 @@ pygame.init()
 def simpleDraw(l, ll):
 	global a
 	global screen
-	drawing.drawArray(screen, a, color=(255,0,0), highlight=l, hlcolors=ll)
+	graphicalgs.drawArray(screen, a, color=(255,0,0), highlight=l, hlcolors=ll)
 	pygame.display.flip()
 
 screen = pygame.display.set_mode((1000, 500))
@@ -55,7 +55,7 @@ for i in range(len(a)-1, 1, -1):
 
 
 screen.fill((255,255,255))
-drawing.drawArray(screen, a, color=(255,0,0))
+graphicalgs.drawArray(screen, a, color=(255,0,0))
 pygame.display.flip()
 
 while 1:

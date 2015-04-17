@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import drawing
+import graphicalgs
 import pygame
 import random
 import sys
@@ -10,7 +10,7 @@ pygame.init()
 def simpleDraw(l, ll, s=[]):
 	global a
 	global screen
-	drawing.drawArray(screen, a, color=blu, highlight=l, hlcolors=ll, swap=s)
+	graphicalgs.drawArray(screen, a, color=blu, highlight=l, hlcolors=ll, swap=s)
 	pygame.display.flip()
 
 winW = 1000
@@ -56,7 +56,7 @@ for i in range(len(a)-1):
 
 
 screen.fill(pygame.Color("#dddddd"))
-drawing.drawArray(screen, a, color=verde)
+graphicalgs.drawArray(screen, a, color=verde)
 smile = pygame.image.load("smile.png")
 screen.blit(smile, ((winW-smile.get_width())/2, (winH-smile.get_height())/2))
 pygame.display.flip()

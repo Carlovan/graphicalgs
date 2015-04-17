@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import drawing
+import graphicalgs
 import pygame
 import random
 import sys
@@ -11,7 +11,7 @@ def simpleDraw(l, ll, s=[]):
 	global a
 	global screen
 	global time
-	drawing.drawArray(screen, a, color=blu, highlight=l, hlcolors=ll, swap=s)
+	graphicalgs.drawArray(screen, a, color=blu, highlight=l, hlcolors=ll, swap=s)
 	pygame.display.flip()
 	pygame.time.delay(time)
 

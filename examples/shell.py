@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import drawing
+import graphicalgs
 import pygame
 import random
 import sys
@@ -9,7 +9,7 @@ def simpleDraw(l, ll, s=[]):
 	global a
 	global screen
 	global frame_time
-	drawing.drawArray(screen, a, color=blu, highlight=l, hlcolors=ll, swap=s)
+	graphicalgs.drawArray(screen, a, color=blu, highlight=l, hlcolors=ll, swap=s)
 	pygame.display.flip()
 	pygame.time.delay(frame_time)
 
@@ -61,17 +61,17 @@ while not esci:
 	for i in range(passo):
 		evidenziati = list(range(i, len(a), passo))
 		screen.fill(grigio)
-		drawing.drawArray(screen, a, color=grigio_scuro, highlight=evidenziati, hlcolors=[blu])
+		graphicalgs.drawArray(screen, a, color=grigio_scuro, highlight=evidenziati, hlcolors=[blu])
 		pygame.display.flip()
 		pygame.time.delay(frame_time)
 		for j in range(i+passo, len(a), passo):
 			screen.fill(grigio)
-			drawing.drawArray(screen, a, color=grigio_scuro, highlight=[j]+range(i, len(a), passo), hlcolors=[verde, blu])
+			graphicalgs.drawArray(screen, a, color=grigio_scuro, highlight=[j]+range(i, len(a), passo), hlcolors=[verde, blu])
 			pygame.display.flip()
 			pygame.time.delay(frame_time)
 			while j > i and a[j] < a[j-passo]:
 				screen.fill(grigio)
-				drawing.drawArray(screen, a, color=grigio_scuro, highlight=[j, j-passo]+range(i, len(a), passo), hlcolors=[verde, giallo, blu], swap=[j, j-passo], swap_time=frame_time)
+				graphicalgs.drawArray(screen, a, color=grigio_scuro, highlight=[j, j-passo]+range(i, len(a), passo), hlcolors=[verde, giallo, blu], swap=[j, j-passo], swap_time=frame_time)
 				pygame.display.flip()
 				pygame.time.delay(frame_time)
 				tmp = a[j]

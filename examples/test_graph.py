@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from drawing import *
+from graphicalgs import *
 
 pygame.init()
 
