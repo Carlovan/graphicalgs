@@ -6,7 +6,7 @@ import math
 pygame.init()
 pygame.font.init()
 
-font = pygame.font.SysFont("arial", 50)
+_font = pygame.font.SysFont("arial", 50)
 
 class Node:
 	'''Class to represent a node in a graph'''
@@ -40,7 +40,7 @@ class Node:
 		pygame.gfxdraw.aacircle(screen, x, y, size/2, color)
 		pygame.gfxdraw.aacircle(screen, x, y, size/2-1, color)
 		#Render the text very big
-		txt = font.render(str(text), True, color)
+		txt = _font.render(str(text), True, color)
 		#Get text size
 		txtW = txt.get_width()
 		txtH = txt.get_height()
@@ -61,20 +61,23 @@ class Node:
 
 class Edge:
 	'''A class to represent an edge in a graph'''
-	def __init__(self, node1, node2, weight=-1):
-		'''node1, node2:	the starting and arriving nodes (Node objects)
+	def __init__(self, nodeFrom, nodeTo, weight=-1):
+		'''nodeFrom, nodeTo:	the starting and arriving nodes (Node objects)
 			weight:					the weight of the edge (in case of weighted graph'''
-		if not isinstance(node1, Node) or not isinstance(node2, Node):
+		if not isinstance(nodeFrom, Node) or not isinstance(nodeTo, Node):
 			raise TypeError, "required Node"
 		if not isinstance(weight, int):
 			raise TypeError, "required int"
 
-		self.nodeFrom = node1
-		self.nodeTo = node2
+		self.nodeFrom = nodeFrom
+		self.nodeTo = nodeTo
 		self.weight = weight
 
-	def draw(self, surf, color, directed=False, weighted=False):
+	def draw(self, screen, color, directed=False, weighted=False):
 		'''Draws the Edge on the Surface with the specified color'''
+		if not isinstance(screen, pygame.Surface):
+			raise TypeError, "required a pygame.Surface object"
+
 		#The slope of the line
 		tan = float(self.nodeTo.y-self.nodeFrom.y)/float(self.nodeTo.x-self.nodeFrom.x)
 
@@ -92,8 +95,7 @@ class Edge:
 		endy = int(self.nodeTo.y-math.sin(angle)*(self.nodeTo.size/2))
 
 		#Draw the line
-		pygame.draw.line(surf, color, (startx, starty), (endx, endy), 3)
-
+		pygame.draw.line(screen, color, (startx, starty), (endx, endy), 3)
 
 class Graph:
 	'''Represent a graph, with nodes and edges'''
@@ -132,7 +134,7 @@ class Graph:
 
 		return adj
 
-	def draw(self, surf, color, highlight=[], hlcolors=[]):
+	def draw(self, screen, color, highlight=[], hlcolors=[]):
 		'''Draws every Node and Edge in the Graph.
 		   You can specify in the list highlight the nodes you want to highlight with a different color.
 		   You can specify colors in hlcolors.
@@ -148,9 +150,9 @@ class Graph:
 			e.draw(surf, color)
 		for n in self.nodes:
 			if n.name in highlight:
-				n.draw(surf, hlcolors[highlight.index(n.name)])
+				n.draw(screen, hlcolors[highlight.index(n.name)])
 			else:
-				n.draw(surf, color)
+				n.draw(screen, color)
 
 
 def _swap(surf, rect1, rect2, color1, color2, time, fps=25):
@@ -190,7 +192,6 @@ def _swap(surf, rect1, rect2, color1, color2, time, fps=25):
 		pygame.draw.rect(surf, color1, rect1)
 		pygame.draw.rect(surf, color2, rect2)
 		pygame.display.flip()
-
 
 def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlcolors=[], swap=[], swap_time=500):
 	'''This function draws on a Surface the content of a list of integers as rectangles.
@@ -270,5 +271,3 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 		c1 = (hlcolors[highlight.index(swap[0])] if swap[0] in highlight else color)
 		c2 = (hlcolors[highlight.index(swap[1])] if swap[1] in highlight else color)
 		_swap(screen, toSwap[0], toSwap[1], c1, c2, swap_time/1000.0)
-
-
