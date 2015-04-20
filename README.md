@@ -12,7 +12,7 @@ To use this API in your program just put the file  _**drawing.py**_ in the same 
 Functions defined inside this API
 
 `drawArray(screen, array, color, horizontal, highlight, hlcolors, swap, swap_time)`
->This function calculates size to fit the surface and draws the array as an histogram with the specified color. You can specify some elements to highlight and also animate the swap of two elements.
+>This function calculates size to fit the surface and draws the array as an histogram with the specified color. You can specify some elements to highlight and also animate the swap of two elements. Return the *list* of the rectangles to be updated on the screen (using *pygame.display.update()*).
 
 >**Arguments:**
 >+ *screen*: it's a *pygame.Surface* object, the surface where the array will be drawn on
@@ -39,7 +39,7 @@ Classes defined inside this API
 
 >`draw(screen, color)`
 
->>Draws the node as a circle with the label inside.
+>>Draws the node as an anti-aliased circle with the label inside and returns the rectangle to be updated on the screen (using *pygame.display.update()*)
 >>+ *screen*: a *pygame.Surface* object, the surface where the node will be draw on.
 >>+ *color*: a *pygame.Color* compatible object, the color the node will be draw with.
 
@@ -55,7 +55,7 @@ Classes defined inside this API
 
 >`draw(screen, color)`
 
->>Draws the edge as an anti-aliased line.
+>>Draws the edge as an anti-aliased line and returns the rectangle to be updated on the screen (using *pygame.display.update()*)
 >>+ *screen*: a *pygame.Surface* object, the surface where the edge will be draw on.
 >>+ *color*: a *pygame.Color* compatible object, the color the ege will be draw with.
 
@@ -69,7 +69,7 @@ Classes defined inside this API
 
 >`draw(screen, color, highlight, hlcolors)`
 
->>Calls the `draw` function for every node and edge inside the graph.
+>>Calls the `draw` function for every node and edge inside the graph and returns the *list* containing rectangles to be updated on the screen (using *pygame.display.update()*).
 >>+ *screen*: the *pygame.Surface* where to draw the graph on.
 >>+ *color*: the color used to draw the graph.
 >>+ *highilight*, *hlcolors*: for highlighting nodes, they work as in `drawArray`.
