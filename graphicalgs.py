@@ -6,6 +6,7 @@ import math
 pygame.init()
 pygame.font.init()
 
+#Used to render text
 _font = pygame.font.SysFont("arial", 50)
 
 class Node:
@@ -24,10 +25,12 @@ class Node:
 		self.x = x
 		self.y = y
 		self.size = size
-	def draw(self, screen, color):
+	def draw(self, screen, color, width=2):
 		'''Draws a Node object on the Surface, as a circle with its name inside'''
 		if not isinstance(screen, pygame.Surface):
 			raise TypeError, "you must give a Surface object"
+		if not isinstance(width, int) or width < 1:
+			raise TypeError("width must be an integer > 0")
 
 		#Node coordinates
 		x = self.x
@@ -37,8 +40,8 @@ class Node:
 		#Node size
 		size = self.size
 		#Draw the anti-aliasing circle (double for line width)
-		pygame.gfxdraw.aacircle(screen, x, y, size/2, color)
-		pygame.gfxdraw.aacircle(screen, x, y, size/2-1, color)
+		for i in range(width):
+			pygame.gfxdraw.aacircle(screen, x, y, size/2-i, color)
 		#Render the text very big
 		txt = _font.render(str(text), True, color)
 		#Get text size
@@ -73,7 +76,7 @@ class Edge:
 		self.nodeTo = nodeTo
 		self.weight = weight
 
-	def draw(self, screen, color, directed=False, weighted=False):
+	def draw(self, screen, color, width=2, directed=False, weighted=False):
 		'''Draws the Edge on the Surface with the specified color'''
 		if not isinstance(screen, pygame.Surface):
 			raise TypeError, "required a pygame.Surface object"
@@ -83,8 +86,9 @@ class Edge:
 
 		#Angle of the line with y=0
 		angle = math.atan(tan) + (math.pi if self.nodeTo.x < self.nodeFrom.x else 0)
-		
-		print "angle {1} tan {0} cos {2} sin {3}".format(tan, math.degrees(angle), math.cos(angle), math.sin(angle))
+
+		#Debug
+		#print "angle {1} tan {0} cos {2} sin {3}".format(tan, math.degrees(angle), math.cos(angle), math.sin(angle))
 
 		#Starting point
 		startx = int(self.nodeFrom.x+math.cos(angle)*float(self.nodeFrom.size/2))
@@ -95,7 +99,7 @@ class Edge:
 		endy = int(self.nodeTo.y-math.sin(angle)*(self.nodeTo.size/2))
 
 		#Draw the line
-		pygame.draw.line(screen, color, (startx, starty), (endx, endy), 3)
+		pygame.draw.line(screen, color, (startx, starty), (endx, endy), width)
 
 class Graph:
 	'''Represent a graph, with nodes and edges'''
@@ -138,59 +142,71 @@ class Graph:
 		'''Draws every Node and Edge in the Graph.
 		   You can specify in the list highlight the nodes you want to highlight with a different color.
 		   You can specify colors in hlcolors.
-		   highlight[i] willbe drawed with color hlcolor[i]
+		   highlight[i] will be draw with color hlcolor[i]
 		   If len(highlight) > len(hlcolors) the overflow nodes will be drawed with the last color (hlcolors[-1]).'''
 		if not isinstance(highlight, (list, tuple)) or not isinstance(hlcolors, (list, tuple)):
 			raise TypeError, "required a list or tuple"
 		elif len(highlight) != len(hlcolors):
 			raise ValueError, "highlight and hlcolors arguments must have the same dimension"
-		for i in range(len(highlight)):
-			highlight[i] = str(highlight[i])
+		#Converts to string
+		map(str, highlight)
+		#Call the draw function for every edge
 		for e in self.edges:
 			e.draw(surf, color)
+		#Call the draw function for every node
 		for n in self.nodes:
+			#Check if to be highlighted
 			if n.name in highlight:
 				n.draw(screen, hlcolors[highlight.index(n.name)])
 			else:
 				n.draw(screen, color)
 
 
-def _swap(surf, rect1, rect2, color1, color2, time, fps=25):
+def _swap(screen, rect1, rect2, color1, color2, time, fps=25):
 	'''This is an internal function to swap two rects'''
 
 	#If rect1 and rect2 are the same rect just draw it and wait
 	print rect1
 	print rect2
-	print ""
 	if rect1.left == rect2.left and rect1.top == rect2.top and rect1.width == rect2.width and rect1.height == rect2.height:
-		pygame.draw.rect(surf, color1, rect1)
+		pygame.draw.rect(screen, color1, rect1)
 		pygame.display.flip()
 		pygame.time.sleep(time)
-		print "ok"
 		return
 
-	surfTemp = surf.copy()
+	#Save the current surface
+	surfTemp = screen.copy()
 	rect1Temp = rect1.copy()
 	rect2Temp = rect2.copy()
 
+	#Total animation frames
 	totFrames = int(fps*time)+1
+	#Horizontal movement
 	offsetX = rect1.left-rect2.left
 	stepX = float(offsetX)/totFrames
+	#Vertical movement
 	offsetY = rect1.bottom-rect2.bottom
 	stepY = float(offsetY)/totFrames
 
+	#Object for timing
 	clock = pygame.time.Clock()
+	#Iterate for every frame
 	for i in range(totFrames+1):
+		#Limit framerate
 		clock.tick(fps)
-		surf.blit(surfTemp, (0,0))
+		#Reset the surface and rectangles
+		screen.blit(surfTemp, (0,0))
 		rect1 = rect1Temp.copy()
 		rect2 = rect2Temp.copy()
+		#Set rectangles position to the current frame
 		rect1.left -= int(stepX*i)
 		rect1.bottom -= int(stepY*i)
 		rect2.left += int(stepX*i)
 		rect2.bottom += int(stepY*i)
+		#Draws the frame
 		pygame.draw.rect(surf, color1, rect1)
 		pygame.draw.rect(surf, color2, rect2)
+		#Refresh the screen
 		pygame.display.flip()
 
 def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlcolors=[], swap=[], swap_time=500):
@@ -215,10 +231,13 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 
 	if not isinstance(horizontal, bool):
 		raise TypeError, "required bool"
+
 	if not isinstance(highlight, list) or not isinstance(hlcolors, list):
 		raise TypeError, "required a list"
-	#if len(highlight) != len(hlcolors):
-	#	raise ValueError, "'highlight' and 'hlcolors' must have the same number of elements"
+
+	if not (isinstance(swap, (list, tuple)) && (len(swap) != 0 or len(swap) != 2)):
+		raise TypeError, "swap must be a two elements list or tuple"
+
 	if not isinstance(swap_time, int):
 		raise TypeError, "swaptime must be an integer (milliseconds)"
 
@@ -233,7 +252,7 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 		surfW = screen.get_height()
 		surfH = screen.get_width()
 
-	#Calculate maximum and minimum value in list
+	#Calculate maximum value in list
 	maxVal = max(array)
 
 	#Max height of the rectangle (15px blank on top)
@@ -247,8 +266,11 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 
 	toSwap = []
 
+	#Iterate over the array
 	for i in range(len(array)):
+		#Calculate the height of the current element
 		actualHeight = (maxHeight*array[i])/maxVal
+		#Current elements size and position
 		rectx = rectWidth*i+(spaceWidth/2)
 		rectw = rectWidth-spaceWidth
 		recth = actualHeight
@@ -259,15 +281,27 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 		else:
 			rect = pygame.Rect(0, rectx, recth, rectw)
 			rect.left = 0
+		#Draw the current element if not to swap
 		if i not in swap:
+			#The color used to draw the element
+			el_color = 0
+			#If it's highlighted
 			if i in highlight:
+				#Select the color
 				temp_index = highlight.index(i) if highlight.index(i) < len(hlcolors) else len(hlcolors)-1
-				pygame.draw.rect(screen, hlcolors[temp_index], rect)
+				el_color = hlcolors[temp_index]
 			else:
-				pygame.draw.rect(screen, color, rect)
+				el_color = color
+			#Draw the rectangle
+			pygame.draw.rect(screen, color, rect)
+		#If to swap
 		else:
+			#Add the element's RECTANGLE to the list (and doesn't draw it)
 			toSwap.append(rect)
+	#If there are some elements to swap
 	if(len(toSwap) == 2):
+		#Select the colors
 		c1 = (hlcolors[highlight.index(swap[0])] if swap[0] in highlight else color)
 		c2 = (hlcolors[highlight.index(swap[1])] if swap[1] in highlight else color)
+		#Animate the swap
 		_swap(screen, toSwap[0], toSwap[1], c1, c2, swap_time/1000.0)
