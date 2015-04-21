@@ -1,39 +1,62 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 import graphicalgs
 import pygame
 import random
 import sys
 
+
+time = input("Durata di un frame: ")
+font = pygame.font.SysFont("arial", 60)
+
+
 pygame.init()
 
 def simpleDraw(l, ll, s=[]):
 	global a
 	global screen
-	graphicalgs.drawArray(screen, a, color=blu, highlight=l, hlcolors=ll, swap=s)
+	rrr = graphicalgs.drawArray(screen, a, color=blu, highlight=l, hlcolors=ll, swap=s, swap_time=time)
+	#pygame.display.update(rrr)
 	pygame.display.flip()
 
 winW = 1000
 winH = 500
 
-screen = pygame.display.set_mode((winW, winH))
-pygame.display.set_caption("Selection sort")
-screen.fill((255,255,255))
-pygame.display.flip()
-
-maxN = 10
-
-a = range(1,maxN)
-#random.shuffle(a)
-
 bianco = (255,255,255)
 nero = (0,0,0)
-rosso = (255,0,0)
-verde = (0,255,0)
-blu = (0,0,255)
-giallo = (255,255,0)
+rosso = pygame.Color("#c0392b")
+verde = pygame.Color("#27ae60")
+blu = pygame.Color("#2980b9")
+giallo = pygame.Color("#f1c40f")
+viola = pygame.Color("#8e44ad")
 
-time = 300
+backg = pygame.Color("#dddddd")
+elemC = blu
+minC = verde
+selC = rosso
+currC = giallo
+okC = viola
+
+screen = pygame.display.set_mode((winW, winH))
+pygame.display.set_caption("Selection sort")
+screen.fill(backg)
+pygame.display.flip()
+
+
+#Legenda
+screen.blit(font.render("Elemento da sostituire", True, currC), (50,10))
+screen.blit(font.render("Elemento considerato", True, selC), (50,50))
+screen.blit(font.render("Elemento minimo", True, minC), (50,90))
+screen.blit(font.render("Elemento gia' posizionato correttamente", True, okC), (50,130))
+pygame.display.flip()
+while not pygame.event.peek(pygame.MOUSEBUTTONDOWN):
+	pygame.time.delay(100)
+
+
+maxN = 15
+
+a = range(1,maxN)
+random.shuffle(a)
 
 for i in range(len(a)-1):
 	minVal = maxN
@@ -46,17 +69,17 @@ for i in range(len(a)-1):
 		if a[j] < minVal:
 			minVal = a[j]
 			minInd = j
-		screen.fill(pygame.Color("#dddddd"))
-		simpleDraw([minInd, j, i], [rosso, verde, giallo])
+		screen.fill(backg)
+		simpleDraw([minInd, j, i]+range(i), [minC, currC, selC, okC])
 		pygame.time.delay(time)
-	screen.fill(pygame.Color("#dddddd"))
-	simpleDraw([minInd, j, i], [rosso, verde, giallo], s=[i, minInd])
+	screen.fill(backg)
+	simpleDraw([minInd, j, i]+range(i), [minC, currC, selC, okC], s=[i, minInd])
 	pygame.time.delay(time)
 	a[i], a[minInd] = a[minInd], a[i]
 
 
-screen.fill(pygame.Color("#dddddd"))
-graphicalgs.drawArray(screen, a, color=verde)
+screen.fill(backg)
+graphicalgs.drawArray(screen, a, color=okC)
 smile = pygame.image.load("smile.png")
 screen.blit(smile, ((winW-smile.get_width())/2, (winH-smile.get_height())/2))
 pygame.display.flip()

@@ -182,8 +182,8 @@ def _swap(screen, rect1, rect2, color1, color2, time, fps=25):
 	pygame.display.flip()
 
 	#If rect1 and rect2 are the same rect just draw it and wait
-	print rect1
-	print rect2
+	#print rect1
+	#print rect2
 	if rect1.left == rect2.left and rect1.top == rect2.top and rect1.width == rect2.width and rect1.height == rect2.height:
 		drawn_rect = pygame.draw.rect(screen, color1, rect1)
 		#Update just the drawn rectangle
@@ -228,7 +228,8 @@ def _swap(screen, rect1, rect2, color1, color2, time, fps=25):
 		to_update.append(pygame.draw.rect(screen, color2, rect2))
 		#Refresh just the old rectangle (erase) and new (draw)
 		pygame.display.update(to_update)
-		#Remove the ols ractangles
+		#pygame.display.flip()
+		#Remove the old ractangles
 		to_update = to_update[-2:]
 
 def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlcolors=[], swap=[], swap_time=500):
@@ -319,7 +320,7 @@ def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlco
 			else:
 				el_color = color
 			#Draw the rectangle
-			to_update.append(pygame.draw.rect(screen, color, rect))
+			to_update.append(pygame.draw.rect(screen, el_color, rect))
 		#If to swap
 		else:
 			#Add the element's RECTANGLE to the list (and doesn't draw it)
