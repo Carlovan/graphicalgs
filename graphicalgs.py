@@ -175,11 +175,15 @@ class Graph:
 		return to_update
 
 
-def _swap(screen, rect1, rect2, color1, color2, time, fps=25):
-	'''This is an internal function to swap two rects'''
+'''def Animate(screen, elements, time, fps=35):
+	try:
+		for x in elements:
+			if (isinstance(x[0], pygame.Surface) and len(x) == 3) or
+	except:
+		pass'''
 
-	#Refresh the screen
-	pygame.display.flip()
+def _swap(screen, rect1, rect2, color1, color2, time, fps=35):
+	'''This is an internal function to swap two rects'''
 
 	#If rect1 and rect2 are the same rect just draw it and wait
 	#print rect1
@@ -210,10 +214,9 @@ def _swap(screen, rect1, rect2, color1, color2, time, fps=25):
 
 	#Object for timing
 	clock = pygame.time.Clock()
+	clock.tick()
 	#Iterate for every frame
 	for i in range(totFrames+1):
-		#Limit framerate
-		clock.tick(fps)
 		#Reset the surface and rectangles
 		screen.blit(surfTemp, (0,0))
 		rect1 = rect1Temp.copy()
@@ -227,10 +230,12 @@ def _swap(screen, rect1, rect2, color1, color2, time, fps=25):
 		to_update.append(pygame.draw.rect(screen, color1, rect1))
 		to_update.append(pygame.draw.rect(screen, color2, rect2))
 		#Refresh just the old rectangle (erase) and new (draw)
-		pygame.display.update(to_update)
-		#pygame.display.flip()
+		#pygame.display.update(to_update)
+		pygame.display.flip()
 		#Remove the old ractangles
 		to_update = to_update[-2:]
+		#Limit framerate
+		clock.tick(fps)
 
 def drawArray(screen, array, color=(0,0,0), horizontal=False, highlight=[], hlcolors=[], swap=[], swap_time=500):
 	'''This function draws on a Surface the content of a list of integers as rectangles.
