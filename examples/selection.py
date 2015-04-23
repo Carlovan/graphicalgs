@@ -62,7 +62,7 @@ for i in range(len(a)-1):
 	minVal = maxN
 	minInd = 0
 	for j in range(i, len(a)):
-		if pygame.event.Event(pygame.QUIT) in pygame.event.get():
+		if pygame.event.peek(pygame.QUIT):
 			pygame.quit()
 			sys.exit()
 
@@ -85,7 +85,7 @@ screen.blit(smile, ((winW-smile.get_width())/2, (winH-smile.get_height())/2))
 pygame.display.flip()
 
 while 1:
-	if pygame.event.Event(pygame.QUIT) in pygame.event.get():
+	if pygame.event.peek(pygame.QUIT):
 		pygame.quit()
 		sys.exit()
 	pygame.time.delay(50)

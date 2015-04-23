@@ -1,101 +1,138 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 import graphicalgs
 import pygame
 import random
 import sys
 
-def simpleDraw(l, ll, s=[]):
-	global a
-	global screen
-	global frame_time
-	graphicalgs.drawArray(screen, a, color=blu, highlight=l, hlcolors=ll, swap=s)
-	pygame.display.flip()
-	pygame.time.delay(frame_time)
+time = input("Durata di un frame: ")
+font = pygame.font.SysFont("arial", 60)
 
-
-win_h = 500
-win_w = 1000
-screen = pygame.display.set_mode((win_w, win_h))
-pygame.display.set_caption("Shell sort")
-screen.fill((255,255,255))
-pygame.display.flip()
-
-maxN = 100
-
-'''	0 random
-		1 inverse
-		2 sorted
-'''
-init_state = 1
-
-
-#Random
-if init_state == 0:
-	a = range(1,maxN)
-	random.shuffle(a)
-elif init_state == 1:
-	#Inverse
-	a = range(maxN-1, 0, -1)
-elif init_state == 2:
-	#Sorted
-	a = range(1, maxN)
 
 bianco = (255,255,255)
 nero = (0,0,0)
-rosso = (255,0,0)
-verde = (0,255,0)
-blu = (0,0,255)
-giallo = (255,255,0)
-grigio = pygame.Color("#dddddd")
+rosso = pygame.Color("#c0392b")
+verde = pygame.Color("#27ae60")
+blu = pygame.Color("#2980b9")
+giallo = pygame.Color("#f1c40f")
+viola = pygame.Color("#8e44ad")
 grigio_scuro = pygame.Color("#aaaaaa")
 
-frame_time = 0
+backg = pygame.Color("#dddddd")
+elemC = blu		#Colore degli elementi considerati
+nonConsC = grigio_scuro	#Colore degli elementi non considerati
+currC = verde	#Colore dell'elemento corrente
+prevC = giallo	#Colore dell'elemento precedente (che e' da scambiare)
+okC = verde	#Colore per gli elementi correttamente posizionati
 
-passo = maxN/2
+
+winH = 500
+winW = 1000
+
+pygame.init()
+
+def simpleDraw(l, ll, s=[]):
+	global a
+	global screen
+	rrr = graphicalgs.drawArray(screen, a, color=nonConsC, highlight=l, hlcolors=ll, swap=s, swap_time=time)
+	#pygame.display.update(rrr)
+	pygame.display.flip()
+
+screen = pygame.display.set_mode((winW, winH))
+pygame.display.set_caption("Bubble sort")
+screen.fill(backg)
+pygame.display.flip()
+
+
+#Legenda
+screen.blit(font.render("Elementi da ordinare", True, elemC), (50,20))
+screen.blit(font.render("Elemento considerato", True, currC), (50,70))
+screen.blit(font.render("Elemento da scambiare", True, prevC), (50,120))
+screen.blit(font.render("(e' maggiore di quello dopo)", True, prevC), (50,160))
+pygame.display.flip()
+while not pygame.event.peek(pygame.MOUSEBUTTONDOWN):
+	pygame.time.delay(100)
+
+
+MAXN = 10
+
+a = range(1,MAXN)
+random.shuffle(a)
+
+
+
+
+# ------ Algoritmo -------
+
+passo = MAXN/2
 esci = False
 while not esci:
 	if passo == 1:
 		esci = True
-	scambiato = False
+
 	for i in range(passo):
+		#Elementi attivi
 		evidenziati = list(range(i, len(a), passo))
-		screen.fill(grigio)
-		graphicalgs.drawArray(screen, a, color=grigio_scuro, highlight=evidenziati, hlcolors=[blu])
+		#Reset screen
+		screen.fill(backg)
+		#Draws the array
+		simpleDraw(evidenziati, [elemC])
+		#Refresh screen
 		pygame.display.flip()
-		pygame.time.delay(frame_time)
+		#Wait
+		pygame.time.delay(time)
+		#For every considered element
 		for j in range(i+passo, len(a), passo):
-			screen.fill(grigio)
-			graphicalgs.drawArray(screen, a, color=grigio_scuro, highlight=[j]+range(i, len(a), passo), hlcolors=[verde, blu])
+			#Reset screen
+			screen.fill(backg)
+			#Draw
+			simpleDraw([j]+range(i, len(a), passo), [currC, elemC])
+			#Refresh screen
 			pygame.display.flip()
-			pygame.time.delay(frame_time)
+			#Wait
+			pygame.time.delay(time)
+			#Move the element
 			while j > i and a[j] < a[j-passo]:
-				screen.fill(grigio)
-				graphicalgs.drawArray(screen, a, color=grigio_scuro, highlight=[j, j-passo]+range(i, len(a), passo), hlcolors=[verde, giallo, blu], swap=[j, j-passo], swap_time=frame_time)
+				#Check quit button
+				if pygame.event.peek(pygame.QUIT):
+					pygame.quit()
+					sys.exit()
+				#Reset screen
+				screen.fill(backg)
+				#Draw
+				simpleDraw([j, j-passo]+range(i, len(a), passo), [currC, prevC, elemC])
+				#Refresh
 				pygame.display.flip()
-				pygame.time.delay(frame_time)
+				#Wait
+				pygame.time.delay(time)
+				#Reset screen
+				screen.fill(backg)
+				#Draw
+				simpleDraw([j, j-passo]+range(i, len(a), passo), [prevC, currC, elemC], [j, j-passo])
+				#Refresh
+				pygame.display.flip()
+				#Wait
+				pygame.time.delay(time)
+				#Swap values
 				tmp = a[j]
 				a[j] = a[j-passo]
 				a[j-passo] = tmp
 				j-= passo
-				scambiato = True
-	if not scambiato:
-		esci = True
+	#New step
 	passo = max(1,passo/2)
 
+# ------ Fine Algoritmo ------
 
 
-screen.fill(grigio)
-simpleDraw([], [])
+
+screen.fill(backg)
+graphicalgs.drawArray(screen, a, color=okC)
 smile = pygame.image.load("smile.png")
-screen.blit(smile, ((win_w-smile.get_width())/2,(win_h-smile.get_height())/2))
+screen.blit(smile, ((winW-smile.get_width())/2, (winH-smile.get_height())/2))
 pygame.display.flip()
 
-#Clear event queue
-pygame.event.get()
-
 while 1:
-	if pygame.event.Event(pygame.QUIT) in pygame.event.get():
+	if pygame.event.peek(pygame.QUIT):
 		pygame.quit()
 		sys.exit()
 	pygame.time.delay(50)

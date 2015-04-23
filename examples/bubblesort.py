@@ -63,7 +63,7 @@ for i in range(len(a)-1, 1, -1):
 	j = 0
 	scambiato = False
 	while j < i:
-		if pygame.event.Event(pygame.QUIT) in pygame.event.get():
+		if pygame.event.peek(pygame.QUIT):
 			pygame.quit()
 			sys.exit()
 		screen.fill(backg)
